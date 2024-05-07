@@ -22,8 +22,7 @@ export default function ListTransactions() {
         ...transactions,
         no: index + 1,
         key: index.toString(),
-        qrcode: transactions.customer.qrCode,
-        rfid: transactions.barang.rfid,
+        customerName: transactions.customer.nama,
         namaBarang: transactions.barang.namaBarang,
         hargaSatuan: formatCurrency(transactions.hargaSatuan),
         total: formatCurrency(transactions.jumlah * transactions.hargaSatuan),
@@ -32,8 +31,7 @@ export default function ListTransactions() {
 
     const columnsTransaction = [
         {key: "no", label: "No"},
-        {key: "qrcode", label: "QR Code"},
-        {key: "rfid", label: "RFID"},
+        {key: "customerName", label: "Customer Name"},
         {key: "namaBarang", label: "Product Name"},
         {key: "hargaSatuan", label: "Price"},
         {key: "jumlah", label: "Quantity"},

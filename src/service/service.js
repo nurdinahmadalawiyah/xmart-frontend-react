@@ -17,3 +17,11 @@ export const getProducts = async () => {
         console.log(error)
     }
 }
+
+export const getTransactions = async () => {
+    try {
+        return await axios.get(BASE_URL + "/transaksi");
+    } catch (error) {
+        console.log(error)
+    }
+}

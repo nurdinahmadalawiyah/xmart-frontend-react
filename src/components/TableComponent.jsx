@@ -1,13 +1,12 @@
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 
-const TableComponent = ({ columns, rows }) => {
+export default function TableComponent ({ columns, rows }) {
     return (
-        // <div style={{ overflowY: 'auto', borderRadius: '20px', maxHeight: 'calc(100vh - 100px)' }}>
             <Table aria-label="Example table with dynamic content">
                 <TableHeader columns={columns}>
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
                 </TableHeader>
-                <TableBody items={rows}>
+                <TableBody items={rows} emptyContent={"No data to display"}>
                     {(item) => (
                         <TableRow key={item.key}>
                             {columns.map((column) => (
@@ -17,8 +16,5 @@ const TableComponent = ({ columns, rows }) => {
                     )}
                 </TableBody>
             </Table>
-        // </div>
     );
-};
-
-export default TableComponent;
+}

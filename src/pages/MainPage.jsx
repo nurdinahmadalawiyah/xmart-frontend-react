@@ -8,17 +8,17 @@ export default function MainPage() {
                 <CardButton
                     title="Shop Now"
                     route="/shop"
-                    icon={{name: Buy, primaryColor: 'lightgreen', size: 'xlarge', stroke: 'bold'}}
+                    icon={{name: Buy, size: 'xlarge', stroke: 'bold'}}
                 />
                 <CardButton
                     title="Customer Profile"
                     route="/profile"
-                    icon={{name: User, primaryColor: 'yellow', size: 'xlarge', stroke: 'bold'}}
+                    icon={{name: User, size: 'xlarge', stroke: 'bold'}}
                 />
                 <CardButton
-                    title="Admin"
-                    route="/admin"
-                    icon={{name: Document, primaryColor: 'blue', size: 'xlarge', stroke: 'bold'}}
+                    title="Data"
+                    route="/data"
+                    icon={{name: Document, size: 'xlarge', stroke: 'bold'}}
                 />
             </div>
         </section>

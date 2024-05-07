@@ -93,7 +93,7 @@ export default function ProfilePage() {
                                 <CardHeader className="flex gap-3">
                                     <Discount/>
                                     <div className="flex flex-col">
-                                        <p className="text-xl">Customer Profile</p>
+                                        <p className="text-xl">History of Transaction</p>
                                     </div>
                                 </CardHeader>
                                 <Divider/>

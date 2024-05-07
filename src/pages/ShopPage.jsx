@@ -4,7 +4,7 @@ import QRReader from '../components/QRReader';
 export default function ShopPage() {
     const handleQRScan = (data) => {
         console.log("QR code scanned:", data);
-        // Lakukan apa pun yang perlu dilakukan dengan data hasil pemindaian QR di sini
+        localStorage.setItem('qrcodeCustomer', data);
     };
 
     return (

@@ -3,16 +3,54 @@ import {User, Discount} from "react-iconly";
 import React, {useEffect, useState} from "react";
 import QRReader from "../components/QRReader.jsx";
 import TableComponent from "../components/TableComponent.jsx";
+import {getDetailCustomer, getHistoryTransaction} from "../service/service.js";
+import formatCurrency from "../utils/formatCurrency.js";
+import formatDate from "../utils/formatDate.js";
 
 export default function ProfilePage() {
     const [scannedData, setScannedData] = useState(null);
+    const [detailCustomer, setDetailCustomer] = useState(null);
+    const [historyTransaction, setHistoryTransaction] = useState([]);
+
+    const handleGetHistoryTransaction = () => {
+        const qrcode = localStorage.getItem('qrcodeCustomer');
+        getHistoryTransaction(qrcode).then((response) => {
+            if (response.status === 200) {
+                console.log("Data History Transaction: ", response.data.data.getTransaksi);
+                setHistoryTransaction(response.data.data.getTransaksi)
+            }
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
+
+    const handleGetProfile = () => {
+        const qrcode = localStorage.getItem('qrcodeCustomer');
+        getDetailCustomer(qrcode).then((response) => {
+            if (response.status === 200) {
+                console.log("Data Profile: ", response.data);
+                setDetailCustomer(response.data)
+            }
+        }).catch((err) => {
+            console.log(err)
+        })
+    }
 
     useEffect(() => {
         const qrCodeCustomer = localStorage.getItem('qrcodeCustomer');
         if (qrCodeCustomer) {
             setScannedData(qrCodeCustomer);
+            handleGetProfile();
+            handleGetHistoryTransaction();
         }
     }, []);
+
+    useEffect(() => {
+        if (scannedData) {
+            handleGetProfile();
+            handleGetHistoryTransaction();
+        }
+    }, [scannedData]);
 
     const handleQRScan = (data) => {
         console.log("QR code scanned:", data);
@@ -23,112 +61,29 @@ export default function ProfilePage() {
     const handleLogout = () => {
         localStorage.removeItem('qrcodeCustomer');
         setScannedData(null);
+        setDetailCustomer(null);
     }
 
-    const rows = [
-        {
-            key: "1",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "2",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "3",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "4",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "5",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "6",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "7",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "8",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "9",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-        {
-            key: "10",
-            rfid: "123456789012",
-            namaBarang: "Smartphone",
-            hargaSatuan: "8000000",
-            jumlah: "5",
-            tanggalJam: "2024-05-03 16:39:36.694",
-        },
-    ];
+    const rowHistoryTransaction = historyTransaction.map((historyTransaction, index) => ({
+        ...historyTransaction,
+        no: index + 1,
+        key: index.toString(),
+        rfid: historyTransaction.rfid,
+        namaBarang: historyTransaction.rfid,
+        hargaSatuan: formatCurrency(historyTransaction.hargaSatuan),
+        total: formatCurrency(historyTransaction.jumlah * historyTransaction.hargaSatuan),
+        tanggalJam: formatDate(historyTransaction.tanggalJam)
+    }))
 
-    const columns = [
-        {
-            key: "rfid",
-            label: "RFID",
-        },
-        {
-            key: "namaBarang",
-            label: "Nama Barang",
-        },
-        {
-            key: "hargaSatuan",
-            label: "Harga Satuan",
-        },
-        {
-            key: "jumlah",
-            label: "Jumlah",
-        },
-        {
-            key: "tanggalJam",
-            label: "Tanggal Jam",
-        }
+
+    const columnsHistoryTransaction = [
+        {key: "no", label: "No"},
+        {key: "rfid", label: "RFID"},
+        {key: "namaBarang", label: "Product Name"},
+        {key: "hargaSatuan", label: "Price"},
+        {key: "jumlah", label: "Quantity"},
+        {key: "total", label: "Total"},
+        {key: "tanggalJam", label: "Date"},
     ];
 
     return (
@@ -152,25 +107,31 @@ export default function ProfilePage() {
                                 </CardHeader>
                                 <Divider/>
                                 <CardBody>
-                                    <p>Name : Nurdin A. Alawiyah</p>
-                                    <br/>
-                                    <p>Wallet : Rp. 360000</p>
+                                    {detailCustomer ? (
+                                        <>
+                                            <p>Name : {detailCustomer.nama}</p>
+                                            <br/>
+                                            <p>Wallet : {formatCurrency(detailCustomer.wallet)}</p>
+                                        </>
+                                    ) : (
+                                        <Button isLoading/>
+                                    )}
                                 </CardBody>
                             </Card>
                             <Button color="danger" onClick={handleLogout}>
                                 Logout
                             </Button>
                         </div>
-                            <Card className="min-w-[300px]">
-                                <CardHeader className="flex gap-3">
-                                    <Discount/>
-                                    <div className="flex flex-col">
-                                        <p className="text-xl">History of Transaction</p>
-                                    </div>
-                                </CardHeader>
-                                <Divider/>
-                                <TableComponent columns={columns} rows={rows}/>
-                            </Card>
+                        <Card className="min-w-[300px]">
+                            <CardHeader className="flex gap-3">
+                                <Discount/>
+                                <div className="flex flex-col">
+                                    <p className="text-xl">History of Transaction</p>
+                                </div>
+                            </CardHeader>
+                            <Divider/>
+                            <TableComponent columns={columnsHistoryTransaction} rows={rowHistoryTransaction}/>
+                        </Card>
                     </div>
                 )}
             </div>

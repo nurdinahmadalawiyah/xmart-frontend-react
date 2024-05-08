@@ -19,6 +19,14 @@ export const getProducts = async () => {
     }
 }
 
+export const getDetailProduct = async (rfid) => {
+    try {
+        return await axios.get(BASE_URL + `/barang/${rfid}`);
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 export const getTransactions = async () => {
     try {
         return await axios.get(BASE_URL + "/transaksi");

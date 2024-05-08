@@ -89,13 +89,7 @@ export default function ProfilePage() {
     return (
         <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 h-screen">
             <div className="flex flex-row justify-center items-center gap-20">
-                {!scannedData && (
-                    <div className="flex row justify-center items-center gap-20">
-                        <h4 className="text-xl">Scan Your Customer QR Code</h4>
-                        <QRReader onQRScan={handleQRScan}/>
-                    </div>
-                )}
-                {scannedData && (
+                {scannedData ? (
                     <div className="flex gap-8 items-start">
                         <div>
                             <Card className="min-w-[300px] mb-4">
@@ -132,6 +126,11 @@ export default function ProfilePage() {
                             <Divider/>
                             <TableComponent columns={columnsHistoryTransaction} rows={rowHistoryTransaction}/>
                         </Card>
+                    </div>
+                ) : (
+                    <div className="flex row justify-center items-center gap-20">
+                        <h4 className="text-xl">Scan Your Customer QR Code</h4>
+                        <QRReader onQRScan={handleQRScan}/>
                     </div>
                 )}
             </div>

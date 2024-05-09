@@ -2,12 +2,11 @@ import React, {useEffect, useState} from 'react';
 import QRReader from '../components/QRReader';
 import TableComponent from "../components/TableComponent.jsx";
 import {Button, Card, CardBody, CardHeader, Divider, Input} from "@nextui-org/react";
-import {Buy} from "react-iconly";
-import {getDetailProduct} from "../service/service.js";
-import { Formik, Form } from 'formik';
+import {Buy, Delete} from "react-iconly";
+import {getDetailProduct, saveTransaction} from "../service/service.js";
+import {Formik, Form} from 'formik';
 import * as Yup from 'yup';
 import formatCurrency from "../utils/formatCurrency.js";
-import {Delete} from "react-iconly";
 
 export default function ShopPage() {
     const [scannedData, setScannedData] = useState(null);
@@ -57,6 +56,27 @@ export default function ShopPage() {
         setCartItems(newCartItems);
     };
 
+    const handleCheckout = async () => {
+        try {
+            const qrcode = scannedData;
+            const transaksi = cartItems.map(item => ({
+                rfid: item.rfid,
+                namaBarang: item.namaBarang,
+                hargaSatuan: item.hargaSatuan,
+                jumlah: item.quantity
+            }));
+            const response = await saveTransaction(qrcode, transaksi);
+            if(response.status === 200) {
+                console.log("Success Checkout")
+                setCartItems([]);
+            } else {
+                console.log("Failed Checkout")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const calculateTotalPrice = () => {
         let totalPrice = 0;
         cartItems.forEach(item => {
@@ -76,28 +96,46 @@ export default function ShopPage() {
         key: index.toString(),
         hargaSatuan: formatCurrency(cartItem.hargaSatuan),
         jumlah: (
-            <Input
-                name={`carts.${index}.quantity`}
-                type="number"
-                min="1"
-                value={cartItem.quantity}
-                onChange={(event) => handleQuantityChange(index, event.target.value)}
-            />
+            <div className="flex flex-row gap-2 items-center">
+                <Button
+                    isIconOnly
+                    size="sm"
+                    variant="bordered"
+                    color="primary"
+                    onClick={() => handleQuantityChange(index, Math.max(1, cartItem.quantity - 1))}
+                >
+                    <b>-</b>
+                </Button>
+                <Input
+                    isDisabled
+                    name={`carts.${index}.quantity`}
+                    min="1"
+                    value={cartItem.quantity}
+                    className="max-w-12"
+                    onChange={(event) => handleQuantityChange(index, event.target.value)}
+                />
+                <Button
+                    isIconOnly
+                    size="sm"
+                    variant="bordered"
+                    color="primary"  onClick={() => handleQuantityChange(index, cartItem.quantity + 1)}
+                >
+                    <b>+</b>
+                </Button>
+            </div>
         ),
         total: formatCurrency(cartItem.hargaSatuan * cartItem.quantity),
         actions: (
-            // <Button color="error" onClick={() => handleDeleteItem(index)}>Delete</Button>
-            <span className=" flex justify-center" onClick={() => handleDeleteItem(index)}>
+            <span className="flex justify-center" onClick={() => handleDeleteItem(index)}>
              <Delete primaryColor="red"/>
             </span>
         )
     }));
 
-
     const columnCarts = [
         {
-            key: "rfid",
-            label: "RFID",
+            key: "no",
+            label: "No",
         },
         {
             key: "namaBarang",
@@ -162,7 +200,7 @@ export default function ShopPage() {
                                     <p className="text-end">Total Price : {calculateTotalPrice()}</p>
                                 </CardBody>
                             </Card>
-                            <Button color="primary">
+                            <Button color="primary" onClick={handleCheckout}>
                                 Checkout
                             </Button>
                         </div>

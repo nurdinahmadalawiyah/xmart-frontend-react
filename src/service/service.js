@@ -61,7 +61,29 @@ export const getHistoryTransaction = async (qrCode) => {
     };
 
     try {
-        return await axios.post(GRAPHQL_URL, { query, variables });
+        return await axios.post(GRAPHQL_URL, {query, variables});
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export const saveTransaction = async (qrcode, transaksi) => {
+    const query = `
+        mutation SaveTransaksi($qrcode: String!, $transaksi: [TransaksiInput!]!) {
+            saveTransaksi(qrcode: $qrcode, transaksi: $transaksi) {
+                success
+                message
+            }
+        }
+    `;
+
+    const variables = {
+        qrcode,
+        transaksi,
+    };
+
+    try {
+        return await axios.post(GRAPHQL_URL, {query, variables});
     } catch (error) {
         console.log(error)
     }

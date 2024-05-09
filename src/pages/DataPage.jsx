@@ -14,7 +14,7 @@ export default function DataPage() {
     return (
         <div className="items-center justify-center p-10 min-h-screen">
             <div className="flex flex-col md:flex-row justify-center items-center">
-                <div className="flex w-full flex-col">
+                <div className="flex w-full flex-col items-center">
                     <Tabs color="primary" radius="full" items={tabs}>
                         {(item) => (
                             <Tab key={item.id} title={item.label}>

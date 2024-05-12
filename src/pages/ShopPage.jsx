@@ -3,7 +3,7 @@ import QRReader from '../components/QRReader';
 import TableComponent from "../components/TableComponent.jsx";
 import {Button, Card, CardBody, CardHeader, Divider, Input} from "@nextui-org/react";
 import {Buy, Delete} from "react-iconly";
-import {getDetailProduct, saveTransaction} from "../service/service.js";
+import {getDetailCustomer, getDetailProduct, saveTransaction} from "../service/service.js";
 import {Formik, Form} from 'formik';
 import * as Yup from 'yup';
 import formatCurrency from "../utils/formatCurrency.js";
@@ -19,9 +19,19 @@ export default function ShopPage() {
         }
     }, []);
 
-    const handleQRScan = (data) => {
-        localStorage.setItem('qrcodeCustomer', data);
-        setScannedData(data);
+
+    const handleQRScan = async (data) => {
+        try {
+            const response = await getDetailCustomer(data);
+            if (response.status === 200) {
+                localStorage.setItem('qrcodeCustomer', data);
+                setScannedData(data);
+            } else {
+                setScannedData(null);
+            }
+        } catch (error) {
+            console.log(error)
+        }
     };
 
     const handleQRInputProductScan = async (rfid) => {

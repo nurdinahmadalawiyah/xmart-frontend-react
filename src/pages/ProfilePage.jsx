@@ -52,10 +52,18 @@ export default function ProfilePage() {
         }
     }, [scannedData]);
 
-    const handleQRScan = (data) => {
-        console.log("QR code scanned:", data);
-        localStorage.setItem('qrcodeCustomer', data);
-        setScannedData(data);
+    const handleQRScan = async (data) => {
+        try {
+            const response = await getDetailCustomer(data);
+            if (response.status === 200) {
+                localStorage.setItem('qrcodeCustomer', data);
+                setScannedData(data);
+            } else {
+                setScannedData(null);
+            }
+        } catch (error) {
+            console.log(error)
+        }
     };
 
     const handleLogout = () => {

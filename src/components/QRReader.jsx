@@ -1,15 +1,13 @@
 import QrReader from 'react-qr-reader';
 
 export default function QRReader(props) {
-
     const handleScan = async (scanData) => {
-        console.log(`loaded data data`, scanData);
         if (scanData && scanData !== "") {
-            console.log(`loaded >>>`, scanData);
-
             if (typeof props.onQRScan === 'function') {
                 props.onQRScan(scanData);
             }
+        } else {
+            console.log("Scan failed or QR code not detected.");
         }
     };
 

@@ -1,19 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import QRReader from '../components/QRReader';
 import TableComponent from "../components/TableComponent.jsx";
-import {Button, Card, CardBody, CardHeader, Divider, Input} from "@nextui-org/react";
+import {Button, Card, CardBody, CardHeader, Divider, Input, useDisclosure} from "@nextui-org/react";
 import {Buy, Delete} from "react-iconly";
-import {getDetailProduct, saveTransaction} from "../service/service.js";
+import {saveTransaction} from "../service/service.js";
 import {Formik, Form} from 'formik';
 import * as Yup from 'yup';
 import formatCurrency from "../utils/formatCurrency.js";
 import Alert from "../components/Alert.jsx";
 import {handleQRScanCustomer} from "../handlers/qrScanCustomerHandlers.js";
 import {handleQRInputProductScan} from "../handlers/qrScanProductHandlers.js";
+import ModalConfimation from "../components/ModalConfimation.jsx";
 
 export default function ShopPage() {
     const [scannedData, setScannedData] = useState(null);
     const [cartItems, setCartItems] = useState([]);
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const [alert, setAlert] = useState({
         type: null,
         message: null
@@ -57,14 +59,28 @@ export default function ShopPage() {
                 jumlah: item.quantity
             }));
             const response = await saveTransaction(qrcode, transaksi);
-            if(response.status === 200) {
+
+            if (response.status === 200) {
                 console.log("Success Checkout")
+                setAlert({
+                    type: 'success',
+                    message: "Your transaction is success!"
+                })
+                onOpenChange(false);
                 setCartItems([]);
             } else {
                 console.log("Failed Checkout")
+                setAlert({
+                    type: 'danger',
+                    message: "Failed Checkout, Your Wallet is not enough to complete this transaction!"
+                });
             }
         } catch (error) {
-            console.log(error)
+            console.log("Failed Checkout")
+            setAlert({
+                type: 'danger',
+                message: "Failed Checkout, Your Wallet is not enough to complete this transaction!"
+            });
         }
     }
 
@@ -195,9 +211,10 @@ export default function ShopPage() {
                                     <p className="text-end">Total Price : {calculateTotalPrice()}</p>
                                 </CardBody>
                             </Card>
-                            <Button color="primary" onClick={handleCheckout}>
+                            <Button color="primary" onClick={onOpen}>
                                 Checkout
                             </Button>
+                            <ModalConfimation columns={columnCarts} rows={rowCarts} isOpen={isOpen} onOpenChange={onOpenChange} totalPrice={calculateTotalPrice()} handleCheckout={handleCheckout} />
                         </div>
                     </div>
                 )}

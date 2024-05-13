@@ -3,11 +3,12 @@ import {User, Discount} from "react-iconly";
 import React, {useEffect, useState} from "react";
 import QRReader from "../components/QRReader.jsx";
 import TableComponent from "../components/TableComponent.jsx";
-import {getDetailCustomer, getHistoryTransaction} from "../service/service.js";
+import {getHistoryTransaction} from "../service/service.js";
 import formatCurrency from "../utils/formatCurrency.js";
 import formatDate from "../utils/formatDate.js";
 import Alert from "../components/Alert.jsx";
 import {handleQRScanCustomer} from "../handlers/qrScanCustomerHandlers.js";
+import {handleGetProfile} from "../handlers/getProfileHandler.js";
 
 export default function ProfilePage() {
     const [scannedData, setScannedData] = useState(null);
@@ -30,30 +31,23 @@ export default function ProfilePage() {
         })
     }
 
-    const handleGetProfile = () => {
-        const qrcode = localStorage.getItem('qrcodeCustomer');
-        getDetailCustomer(qrcode).then((response) => {
-            if (response.status === 200) {
-                console.log("Data Profile: ", response.data);
-                setDetailCustomer(response.data)
-            }
-        }).catch((err) => {
-            console.log(err)
-        })
+    const handleProfile = async (data) => {
+        const dataProfile = await handleGetProfile(data);
+        setDetailCustomer(dataProfile);
     }
 
     useEffect(() => {
         const qrCodeCustomer = localStorage.getItem('qrcodeCustomer');
         if (qrCodeCustomer) {
             setScannedData(qrCodeCustomer);
-            handleGetProfile();
+            handleProfile().then(r => console.log(r))
             handleGetHistoryTransaction();
         }
     }, []);
 
     useEffect(() => {
         if (scannedData) {
-            handleGetProfile();
+            handleProfile().then(r => console.log(r))
             handleGetHistoryTransaction();
         }
     }, [scannedData]);

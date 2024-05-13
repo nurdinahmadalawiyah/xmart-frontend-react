@@ -6,11 +6,17 @@ import TableComponent from "../components/TableComponent.jsx";
 import {getDetailCustomer, getHistoryTransaction} from "../service/service.js";
 import formatCurrency from "../utils/formatCurrency.js";
 import formatDate from "../utils/formatDate.js";
+import Alert from "../components/Alert.jsx";
+import {handleQRScanCustomer} from "../handlers/qrScanCustomerHandlers.js";
 
 export default function ProfilePage() {
     const [scannedData, setScannedData] = useState(null);
     const [detailCustomer, setDetailCustomer] = useState(null);
     const [historyTransaction, setHistoryTransaction] = useState([]);
+    const [alert, setAlert] = useState({
+        type: null,
+        message: null
+    });
 
     const handleGetHistoryTransaction = () => {
         const qrcode = localStorage.getItem('qrcodeCustomer');
@@ -52,18 +58,8 @@ export default function ProfilePage() {
         }
     }, [scannedData]);
 
-    const handleQRScan = async (data) => {
-        try {
-            const response = await getDetailCustomer(data);
-            if (response.status === 200) {
-                localStorage.setItem('qrcodeCustomer', data);
-                setScannedData(data);
-            } else {
-                setScannedData(null);
-            }
-        } catch (error) {
-            console.log(error)
-        }
+    const handleCustomerDataQRScan = async (data) => {
+        await handleQRScanCustomer(data, setScannedData, setAlert);
     };
 
     const handleLogout = () => {
@@ -93,6 +89,10 @@ export default function ProfilePage() {
         {key: "total", label: "Total"},
         {key: "tanggalJam", label: "Date"},
     ];
+
+    const handleCloseAlert = () => {
+        setAlert({message: ''});
+    }
 
     return (
         <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10 h-screen">
@@ -138,10 +138,11 @@ export default function ProfilePage() {
                 ) : (
                     <div className="flex row justify-center items-center gap-20">
                         <h4 className="text-xl">Scan Your Customer QR Code</h4>
-                        <QRReader onQRScan={handleQRScan}/>
+                        <QRReader onQRScan={handleCustomerDataQRScan}/>
                     </div>
                 )}
             </div>
+            <Alert message={alert.message} onClose={handleCloseAlert} type={alert.type}/>
         </section>
     );
 }

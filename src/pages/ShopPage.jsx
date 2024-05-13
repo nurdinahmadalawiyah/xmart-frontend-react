@@ -3,14 +3,21 @@ import QRReader from '../components/QRReader';
 import TableComponent from "../components/TableComponent.jsx";
 import {Button, Card, CardBody, CardHeader, Divider, Input} from "@nextui-org/react";
 import {Buy, Delete} from "react-iconly";
-import {getDetailCustomer, getDetailProduct, saveTransaction} from "../service/service.js";
+import {getDetailProduct, saveTransaction} from "../service/service.js";
 import {Formik, Form} from 'formik';
 import * as Yup from 'yup';
 import formatCurrency from "../utils/formatCurrency.js";
+import Alert from "../components/Alert.jsx";
+import {handleQRScanCustomer} from "../handlers/qrScanCustomerHandlers.js";
+import {handleQRInputProductScan} from "../handlers/qrScanProductHandlers.js";
 
 export default function ShopPage() {
     const [scannedData, setScannedData] = useState(null);
     const [cartItems, setCartItems] = useState([]);
+    const [alert, setAlert] = useState({
+        type: null,
+        message: null
+    });
 
     useEffect(() => {
         const qrCodeCustomer = localStorage.getItem('qrcodeCustomer');
@@ -20,39 +27,13 @@ export default function ShopPage() {
     }, []);
 
 
-    const handleQRScan = async (data) => {
-        try {
-            const response = await getDetailCustomer(data);
-            if (response.status === 200) {
-                localStorage.setItem('qrcodeCustomer', data);
-                setScannedData(data);
-            } else {
-                setScannedData(null);
-            }
-        } catch (error) {
-            console.log(error)
-        }
+    const handleCustomerDataQRScan = async (data) => {
+        await handleQRScanCustomer(data, setScannedData, setAlert);
     };
 
-    const handleQRInputProductScan = async (rfid) => {
-        try {
-            const response = await getDetailProduct(rfid);
-            if (response.status === 200) {
-                const product = response.data;
-                const existingIndex = cartItems.findIndex(item => item.rfid === product.rfid);
-                if (existingIndex !== -1) {
-                    const newCartItems = [...cartItems];
-                    newCartItems[existingIndex].quantity += 1;
-                    setCartItems(newCartItems);
-                } else {
-                    product.quantity = 1;
-                    setCartItems([...cartItems, product]);
-                }
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    const handleProductDataQRScan = async (rfid) => {
+        await handleQRInputProductScan(rfid, cartItems, setCartItems, setAlert);
+    };
 
     const handleQuantityChange = (index, value) => {
         const newCartItems = [...cartItems];
@@ -169,19 +150,23 @@ export default function ShopPage() {
         }
     ];
 
+    const handleCloseAlert = () => {
+        setAlert({message: ''});
+    }
+
     return (
         <section className="flex flex-row items-center justify-center gap-4 py-8 md:py-10 h-screen">
             <div className="flex flex-row md:flex-row justify-center items-center gap-20">
                 {!scannedData && (
                     <div className="flex row justify-center items-center gap-20">
                         <h4 className="text-xl">Scan Your Customer QR Code</h4>
-                        <QRReader onQRScan={handleQRScan}/>
+                        <QRReader onQRScan={handleCustomerDataQRScan}/>
                     </div>
                 )}
                 {scannedData && (
                     <div className="flex row justify-center items-start gap-20">
                         <div>
-                            <QRReader onQRScan={handleQRInputProductScan}/>
+                            <QRReader onQRScan={handleProductDataQRScan}/>
                             <h4 className="text-xl text-center mt-4">Scan Product</h4>
                         </div>
                         <div>
@@ -217,6 +202,7 @@ export default function ShopPage() {
                     </div>
                 )}
             </div>
+            <Alert message={alert.message} onClose={handleCloseAlert} type={alert.type}/>
         </section>
     )
 }
